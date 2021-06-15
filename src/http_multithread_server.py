@@ -1,4 +1,4 @@
-''' Esercitazione 5 - Corso di Programmazione di Reti - Università di Bologna'''
+
 
 #!/bin/env python
 import sys, signal
@@ -6,44 +6,153 @@ import http.server
 import socketserver
 import os
 
+from tkinter import *
+from PIL import Image, ImageTk
+import json
 
 
-# Legge il numero della porta dalla riga di comando
-if sys.argv[1:]:
-  port = int(sys.argv[1])
-else:
-  port = 8080
-  
-web_dir = os.path.join(os.path.dirname(__file__), 'web')
-os.chdir(web_dir)
 
-server = socketserver.ThreadingTCPServer(('',port), http.server.SimpleHTTPRequestHandler )
-
-#Assicura che da tastiera usando la combinazione
-#di tasti Ctrl-C termini in modo pulito tutti i thread generati
-server.daemon_threads = True  
-#il Server acconsente al riutilizzo del socket anche se ancora non è stato
-#rilasciato quello precedente, andandolo a sovrascrivere
-server.allow_reuse_address = True  
-
-#definiamo una funzione per permetterci di uscire dal processo tramite Ctrl-C
-def signal_handler(signal, frame):
-    print( 'Exiting http server (Ctrl+C pressed)')
+def UserAuthenticated():
+    if sys.argv[1:]:
+      port = int(sys.argv[1])
+    else:
+      port = 8080
+        
+    web_dir = os.path.join(os.path.dirname(__file__), 'web')
+    os.chdir(web_dir)
+    
+    server = socketserver.ThreadingTCPServer(('',port), http.server.SimpleHTTPRequestHandler )
+    
+    server.daemon_threads = True  
+    
+    server.allow_reuse_address = True  
+    
+    def signal_handler(signal, frame):
+        print( 'Exiting http server (Ctrl+C pressed)')
+        try:
+          if( server ):
+            server.server_close()
+        finally:
+          sys.exit(0)
+        
+        
+    signal.signal(signal.SIGINT, signal_handler)
+        
     try:
-      if( server ):
-        server.server_close()
-    finally:
-      sys.exit(0)
+        while True:
+            server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+        
+    server.server_close()
 
-#interrompe l’esecuzione se da tastiera arriva la sequenza (CTRL + C) 
-signal.signal(signal.SIGINT, signal_handler)
+screen_width = 350
+screen_height = 500
 
-# entra nel loop infinito
-try:
-  while True:
-    #sys.stdout.flush()
-    server.serve_forever()
-except KeyboardInterrupt:
-  pass
+blue = '#259bca'
+red = '#bf404c'
+light_red = '#f2b5bb'
 
-server.server_close()
+w = Tk()
+w.geometry('350x500')
+w.title('Clinica Zammarchi Login')
+w.iconbitmap('web/images/logo.ico')
+
+w.resizable(0,0)
+
+Frame(w, width = screen_width, height = screen_height, bg = blue).place(x = 0, y = 0)
+Frame(w, width = 250, height = 400, bg = 'white').place(x = 50, y = 50)
+
+#label and textbox for username
+l1 = Label(w, text = 'Username', bg = 'white')
+l = ('consolas', 13)
+l1.config(font = 1)
+l1.place(x = 80, y = 200)
+e1 = Entry(w, width = 20, border = 1)
+e1.config(font = l)
+e1.place(x = 80, y = 230)
+
+#label and textbox for username
+l2 = Label(w, text = 'Password', bg = 'white')
+l = ('consolas', 13)
+l2.config(font = 1)
+l2.place(x = 80, y = 280)
+e2 = Entry(w, width = 20, border = 1, show = '*')
+e2.config(font = l)
+e2.place(x = 80, y = 310)
+
+imagea=Image.open("web/images/log.png")
+imageb= ImageTk.PhotoImage(imagea)
+
+label1 = Label(image=imageb,
+               border=0,
+               
+               justify=CENTER)
+label1.place(x=115, y=50)
+
+def login(usr):
+    uN = e1.get()
+    pW = e2.get()
+
+    if uN in usr.keys():
+        if pW == usr[uN]:
+            answer = messagebox.askyesno("LOGIN RIUSCITO", "BENTORNATO/A. Vuoi avviare il web server? ")
+            if answer:
+                w.destroy()
+                UserAuthenticated()
+        else:
+            messagebox.showwarning("LOGIN FAILED","        INCORRECT PASSWORD        ")
+            return
+    else:
+        answer = messagebox.askyesno("ACCOUNT CREATO", "BENVENUTO/A. Vuoi avviare il web server? ")
+        if answer:
+            usr[uN] = pW
+            w.destroy()
+            UserAuthenticated()
+        
+
+
+    writeUsers(usr)
+    return
+
+def readUsers():
+    try:
+        with open("users.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+def writeUsers(usr):
+    with open("users.json", "w") as f:
+            json.dump(usr, f)
+def cmd():
+    users = readUsers()
+    login(users)
+
+def btn(x, y, text, ecolor, lcolor):
+    def on_entera(e):
+        myButton1['background'] = ecolor
+        myButton1['foreground']= lcolor
+        
+    def on_leavea(e):
+        myButton1['background'] = lcolor
+        myButton1['foreground']= ecolor
+        
+    myButton1 = Button(w,text=text,
+                   width=20,
+                   height=2,
+                   fg=ecolor,
+                   border=0,
+                   bg=lcolor,
+                   activeforeground=lcolor,
+                   activebackground=ecolor,
+                       command=cmd)
+    
+    myButton1.bind("<Enter>", on_entera)
+    myButton1.bind("<Leave>", on_leavea)
+
+    myButton1.place(x=x,y=y)
+    
+btn(100,375,'LOGIN',light_red,red)
+
+w.mainloop()
