@@ -6,6 +6,8 @@ import http.server
 import socketserver
 import os
 
+
+
 # Legge il numero della porta dalla riga di comando
 if sys.argv[1:]:
   port = int(sys.argv[1])
