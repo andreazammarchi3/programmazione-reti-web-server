@@ -1,5 +1,3 @@
-# Zammarchi_WebServer
-
 # Elaborato Programmazione di reti.
 
 ## Informazioni personali
