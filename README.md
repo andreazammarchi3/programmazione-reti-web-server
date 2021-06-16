@@ -1,11 +1,11 @@
 # Zammarchi_WebServer
 
-Elaborato Programmazione di reti.
+# Elaborato Programmazione di reti.
 
 ## Informazioni personali
-Nome e cognome: Zammarchi Andrea
-Email: andrea.zammarchi3@studio.unibo.it
-Matricola: 914652
+Nome e cognome: Zammarchi Andrea/
+Email: andrea.zammarchi3@studio.unibo.it/
+Matricola: 914652/
 
 ## Traccia 2
 
