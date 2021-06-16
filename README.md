@@ -5,7 +5,7 @@
 ## Informazioni personali
 Nome e cognome: Zammarchi Andrea \
 Email: andrea.zammarchi3@studio.unibo.it \
-Matricola: 914652 \
+Matricola: 914652
 
 ## Traccia 2
 
